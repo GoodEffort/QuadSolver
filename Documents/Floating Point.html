@@ -1,0 +1,673 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="Generator" content="Microsoft Word 97">
+<title>Floating Point</title>
+<link href="Floating%20Point_files/cps104.css" rel="stylesheet" type="text/css"></head>
+<body vlink="#800080" link="#0000ff">
+
+<h1>Floating Point</h1>
+<p>Thomas Finley, April 2000</p>
+<p><a name="intro"></a></p>
+<h2>Contents and Introduction</h2>
+
+<ul type="CIRCLE">
+<li><a href="#intro">Contents and Introduction</a> </li>
+<li><a href="#representation">Representation</a> </li>
+<li><a href="#hex2dec">Conversion from Floating Point Representation to Decimal</a> </li>
+<li><a href="#dec2hex">Conversion from Decimal to Floating Point Representation</a> </li>
+<li><a href="#special">Special Numbers</a> </li>
+<li><a href="#software">Helper Software</a></li></ul>
+
+<p>This document explains the IEEE 754 floating-point standard. It 
+explains the binary representation of these numbers, how to convert to 
+decimal from floating point, how to convert from floating point to 
+decimal, discusses special cases in floating point, and finally ends 
+with some C code to further one's understanding of floating point. This 
+document does not cover operations with floating point numbers.</p>
+<p>I wrote this document so that if you know how to represent, you can 
+skip the representation section, and if you know how to convert to 
+decimal from single precision, you can skip that section, and if you 
+know how to convert to single precision from decimal, you can skip that 
+section.</p>
+<p><a name="representation"></a></p>
+<h2>Representation</h2>
+<p>First, know that binary numbers can have, if you'll forgive my saying
+ so, a decimal point. It works more or less the same way that the 
+decimal point does with decimal numbers. For example, the decimal 22.589
+ is merely 22 and 5*10<sup>-1</sup> + 8*10<sup>-2</sup> + 9*10<sup>-3</sup>. Similarly, the binary number 101.001 is simply 1*2<sup>2</sup> + 0*2<sup>1</sup> + 1*2<sup>0</sup> + 0*2<sup>-1</sup> + 0*2<sup>-2</sup> + 1*2<sup>-3</sup>, or rather simply 2<sup>2</sup> + 2<sup>0</sup> + 2<sup>-3</sup> (this particular number works out to be 9.125, if that helps your thinking).</p>
+<p>Second, know that binary numbers, like decimal numbers, can be 
+represented in scientific notation. E.g., The decimal 923.52 can be 
+represented as 9.2352 * 10<sup>2</sup>. Similarly, binary numbers can be
+ expressed that way as well. Say we have the binary number 101011.101 
+(which is 43.625). This would be represented using scientific notation 
+as 1.01011101 * 2<sup>5</sup>.</p>
+<p>Now that I'm sure the understanding is perfect, I can finally get 
+into representation. The single precision floating point unit is a 
+packet of 32 bits, divided into three sections one bit, eight bits, and 
+twenty-three bits, in that order. I will make use of the previously 
+mentioned binary number 1.01011101 * 2<sup>5</sup> to illustrate how one would take a binary number in scientific notation and represent it in floating point notation.</p>
+<table width="514" cellspacing="1" cellpadding="4" border="">
+<tbody><tr><td colspan="3" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="16%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="RIGHT">X</pre></td>
+<td width="25%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre>XXXXXXXX</pre></td>
+<td width="60%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre>XXXXXXXXXXXXXXXXXXXXXXX</pre></td>
+</tr>
+<tr><td width="16%" valign="MIDDLE" bgcolor="#c0c0c0">
+<b></b><p><b>Sign</b><br>
+1 bit</p></td>
+<td width="25%" valign="MIDDLE" bgcolor="#ff00ff">
+<b></b><p><b>Exponent</b><br>
+8 bits</p></td>
+<td width="60%" valign="MIDDLE" bgcolor="#c0c0c0">
+<b></b><p><b>Mantissa</b><br>
+23 bits</p></td>
+</tr>
+</tbody></table>
+
+<h3>Sign Field</h3>
+<p>The first section is one bit long, and is the sign bit. It is either 0
+ or 1; 0 indicates that the number is positive, 1 negative. The number 
+1.01011101 * 2<sup>5</sup> is positive, so this field would have a value of 0.</p>
+<table width="426" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="3" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="3%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="RIGHT">0</pre></td>
+<td width="25%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre>XXXXXXXX</pre></td>
+<td width="72%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre>XXXXXXXXXXXXXXXXXXXXXXX</pre></td>
+</tr>
+</tbody></table>
+
+<h3>Exponent Field</h3>
+<p>The second section is eight bits long, and serves as the "exponent" 
+of the number as it is expressed in scientific notation as explained 
+above (there is a caveat, so stick around). A field eight bits long can 
+have values ranging from 0 to 255. How would the case of a negative 
+exponent be covered? To cover the case of negative values, this 
+"exponent" is actually 127 greater than the "real" exponent a of the 2<sup>a</sup> term in the scientific notation. Therefore, in our 1.01011101 x 2<sup>5</sup> number, the eight-bit exponent field would have a decimal value of 5 + 127 = 132. In binary this is 10000100.</p>
+<table width="426" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="3" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="3%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="RIGHT">0</pre></td>
+<td width="25%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre>10000100</pre></td>
+<td width="72%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre>XXXXXXXXXXXXXXXXXXXXXXX</pre></td>
+</tr>
+</tbody></table>
+
+<h3>Mantissa Field</h3>
+<p>The third section is twenty-three bits long, and serves as the 
+"mantissa." (The mantissa is sometimes called the significand.) The 
+mantissa is merely the "other stuff" to the left of the 2<sup>a</sup> term in our binary number represented in scientific notation. In our 1.01011101 * 2<sup>5</sup>
+ number, you would think that the mantissa, in all its 23 bit glory, 
+would take the value 10101110100000000000000, but it does not. If you 
+think about it, all numbers expressed in binary notation would have a 
+leading 1. Why? In decimal scientific notation there should never be 
+expressed a value with a leading 0, like 0.2392 * 10<sup>3</sup> or something. This would be expressed instead as 2.392 * 10<sup>2</sup>.
+ The point is, there is never a leading 0 in scientific notation, and it
+ makes no difference whether we're talking about binary or decimal or 
+hexadecimal or whatever. The advantage of binary, though, is that if a 
+digit can't be 0, it must be 1! So, the 1 is assumed to be there and is 
+left out to give us just that much more precision. Thus, our mantissa 
+for our number would in fact be 01011101000000000000000. (The long 
+stream of 0s at the end has one more zero than the alternative number at
+ the beginning of this paragragh.)</p>
+<table width="426" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="3" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="3%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="RIGHT">0</pre></td>
+<td width="25%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre>10000100</pre></td>
+<td width="72%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre>01011101000000000000000</pre></td>
+</tr>
+</tbody></table>
+
+<h3>Double Precision vs. Single Precision</h3>
+<p>In addition to the single precision floating point described here, 
+there are also double precision floating point units. These have 64 bits
+ instead of 32, and instead of field lengths of 1, 8, and 23 as in 
+single precision, have field lengths of 1, 11, and 44. The exponent 
+field contains a value that is actually 1023 larger than the "true" 
+exponent, rather than being larger by 127 as in single precision. 
+Otherwise, it is exactly the same.</p>
+<p><a name="hex2dec"></a></p>
+<h2>Conversion from Floating Point Representation to Decimal</h2>
+<p>Now I'll talk about conversation.</p>
+<p>Conversion to decimal is very simple if you know how these numbers 
+are represented. Let's take the hexadecimal number 0xC0B40000, and 
+suppose it is actually a single precision floating point unit that we 
+want to make into a decimal number. First convert each digit to binary.</p>
+<table width="522" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="9" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="18%" valign="MIDDLE" bgcolor="#ffffff">
+<p align="CENTER">Hex</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">C</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ffff00">
+<p align="CENTER">B</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">4</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ffff00">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">0</p></td>
+</tr>
+<tr><td width="18%" valign="MIDDLE" bgcolor="#c0c0c0">
+<p align="CENTER">Binary</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">1100</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">1011</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0100</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">0000</pre></td>
+</tr>
+</tbody></table>
+
+<p>Then reorganize this number into packets of 1, 8, and 23 bits long.</p>
+<table width="426" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="3" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="3%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="RIGHT">1</pre></td>
+<td width="25%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre>10000001</pre></td>
+<td width="72%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre>01101000000000000000000</pre></td>
+</tr>
+</tbody></table>
+
+<p>The sign field is one, which means this number is negative. The 
+exponent field has a value of 129, which signifies a real exponent of 2 
+(remember the real exponent is the value of the exponent field minus 
+127). The mantissa has a value of 1.01101 (once we stick in the implied 
+1). So, our number is the following:</p>
+<table width="432" cellspacing="0" border="0">
+<tbody><tr><td width="4%" valign="MIDDLE">&nbsp;</td>
+<td colspan="3" width="96%" valign="MIDDLE">
+<p>-1.01101 * 2<sup>2</sup></p></td>
+</tr>
+<tr><td width="4%" valign="MIDDLE">
+<p>=</p></td>
+<td width="85%" valign="MIDDLE">
+<p>-(2<sup>0</sup> + 2<sup>-2</sup> + 2<sup>-3</sup> + 2<sup>-5</sup>)</p></td>
+<td width="4%" valign="MIDDLE">
+<p>*</p></td>
+<td width="7%" valign="MIDDLE">
+<p>2<sup>2</sup></p></td>
+</tr>
+<tr><td width="4%" valign="MIDDLE">
+<p>=</p></td>
+<td width="85%" valign="MIDDLE">
+<p>-(2<sup>2</sup> + 2<sup>0</sup> + 2<sup>-1</sup> + 2<sup>-3</sup>)</p></td>
+<td width="4%" valign="MIDDLE">&nbsp;</td>
+<td width="7%" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="4%" valign="MIDDLE">
+<p>=</p></td>
+<td width="85%" valign="MIDDLE">
+<p>-(4 + 1 + .5 + 0.125)</p></td>
+<td width="4%" valign="MIDDLE">&nbsp;</td>
+<td width="7%" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="4%" valign="MIDDLE">
+<p>=</p></td>
+<td width="85%" valign="MIDDLE">
+<p>-5.625</p></td>
+<td width="4%" valign="MIDDLE">&nbsp;</td>
+<td width="7%" valign="MIDDLE">&nbsp;</td>
+</tr>
+</tbody></table>
+
+<p>It's almost fun, yeah?</p>
+<p><a name="dec2hex"></a></p>
+<h2>Conversion from Decimal to Floating Point Representation</h2>
+<p>Say we have the decimal number 329.390625 and we want to represent it
+ using floating point numbers. The method is to first convert it to 
+binary scientific notation, and then use what we know about the 
+representation of floating point numbers to show the 32 bits that will 
+represent it.</p>
+<p>If you know how to put a decimal into binary scientific notation, 
+you'll get no benefit from reading this. If you don't, read this.</p>
+<p>The first step is to convert what there is to the left of the decimal
+ point to binary. 329 is equivalent to the binary 101001001. Then, leave
+ yourself with what is to the right of the decimal point, in our example
+ 0.390625.</p>
+<p>Yes, I deliberately chose that number to be so convoluted that it 
+wasn't perfectly obvious what the binary representation would be. There 
+is an algorithm to convert to different bases that is simple, 
+straightforward, and largely foolproof. I'll illustrate it for base two.
+ Our base is 2, so we multiply this number times 2. We then record 
+whatever is to the left of the decimal place after this operation. We 
+then take this number and discard whatever is to the left of the decimal
+ place, and continue with this progress on the resulting number. This is
+ how it would be done with 0.390625.</p>
+<table cellspacing="0" border="0">
+<tbody><tr><td valign="MIDDLE">
+<p>0.390625</p></td>
+<td valign="MIDDLE">
+<p>* 2</p></td>
+<td width="200" valign="MIDDLE">
+<p>= 0.78125</p></td>
+<td valign="MIDDLE">
+<p>0</p></td>
+</tr>
+<tr><td valign="MIDDLE">
+<p>0.78125</p></td>
+<td valign="MIDDLE">
+<p>* 2</p></td>
+<td valign="MIDDLE">
+<p>= 1.5625</p></td>
+<td valign="MIDDLE">
+<p>1</p></td>
+</tr>
+<tr><td valign="MIDDLE">
+<p>0.5625</p></td>
+<td valign="MIDDLE">
+<p>* 2</p></td>
+<td valign="MIDDLE">
+<p>= 1.125</p></td>
+<td valign="MIDDLE">
+<p>1</p></td>
+</tr>
+<tr><td valign="MIDDLE">
+<p>0.125</p></td>
+<td valign="MIDDLE">
+<p>* 2</p></td>
+<td valign="MIDDLE">
+<p>= 0.25</p></td>
+<td valign="MIDDLE">
+<p>0</p></td>
+</tr>
+<tr><td valign="MIDDLE">
+<p>0.25</p></td>
+<td valign="MIDDLE">
+<p>* 2</p></td>
+<td valign="MIDDLE">
+<p>= 0.5</p></td>
+<td valign="MIDDLE">
+<p>0</p></td>
+</tr>
+<tr><td valign="MIDDLE">
+<p>0.5</p></td>
+<td valign="MIDDLE">
+<p>* 2</p></td>
+<td valign="MIDDLE">
+<p>= 1</p></td>
+<td valign="MIDDLE">
+<p>1</p></td>
+</tr>
+<tr><td valign="MIDDLE">
+<p>0</p></td>
+<td valign="MIDDLE">&nbsp;</td>
+<td valign="MIDDLE">&nbsp;</td>
+<td valign="MIDDLE">&nbsp;</td>
+</tr>
+</tbody></table>
+
+<p>Since we've reached zero, we're done with that. The binary 
+representation of the number beyond the decimal point can be read from 
+the right column, from the top number downward. This is 0.011001.</p>
+<p>As an aside, it is important to note that not all numbers are 
+resolved so conveniently or quickly as sums of lower and lower powers of
+ two (a number as simple as 0.2 is an example). If they are not so 
+easily resolved, we merely continue on this process until we have 
+however many bits we need to fill up the mantissa.</p>
+<p>As another aside, to the more ambitious among you that don't know 
+already, since this algorithm works similarly for all bases you could 
+just as well use this for any other conversion you have to attempt. This
+ can be used to your advantage in this process by converting using base 
+16.</p>
+<table cellspacing="0" border="0">
+<tbody><tr><td valign="MIDDLE">
+<p>0.390625</p></td>
+<td valign="MIDDLE">
+<p>* 16</p></td>
+<td width="200" valign="MIDDLE">
+<p>= 6.25</p></td>
+<td valign="MIDDLE">
+<p>6</p></td>
+</tr>
+<tr><td valign="MIDDLE">
+<p>0.25</p></td>
+<td valign="MIDDLE">
+<p>* 16</p></td>
+<td valign="MIDDLE">
+<p>= 4</p></td>
+<td valign="MIDDLE">
+<p>4</p></td>
+</tr>
+<tr><td valign="MIDDLE">
+<p>0</p></td>
+<td valign="MIDDLE">&nbsp;</td>
+<td valign="MIDDLE">&nbsp;</td>
+<td valign="MIDDLE">&nbsp;</td>
+</tr>
+</tbody></table>
+
+<p>If we convert simply from hex to binary, 0x64 is 0110 0100, which is 
+the same result as the 011001 yielded above. This method is much faster.</p>
+<p>Anyway! We take those numbers that we got, and represent them as 
+.011001, placing them in the order we acquired them. Put in sequence 
+with our binary representation of 329, we get 101001001.011001. In our 
+binary scientific notation, this is 1.01001001011001 * 2<sup>8</sup>. We then use what we know about how single precision numbers are represented to complete this process.</p>
+<p>The sign is positive, so the sign field is 0.</p>
+<p>The exponent is 8. 8 + 127 = 135, so the exponent field is 10000111.</p>
+<p>The mantissa is merely 01001001011001 (remember the implied 1 of the 
+mantissa means we don't include the leading 1) plus however many 0s we 
+have to add to the right side to make that binary number 23 bits long.</p>
+<p>Since one of the homework problems involves representing this as hex, I will finish with a hex number.</p>
+<table width="426" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="3" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="3%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="RIGHT">0</pre></td>
+<td width="25%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre>10000111</pre></td>
+<td width="72%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre>01001001011001000000000</pre></td>
+</tr>
+</tbody></table>
+
+<p>Then we break it into four bit pieces (since each hexadecimal digit 
+is the equivalent of 4 bits) and then convert each four bit quantity 
+into the corresponding hexadecimal digit.</p>
+<table width="522" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="9" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="18%" valign="MIDDLE" bgcolor="#c0c0c0">
+<p align="CENTER">Binary</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0100</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">0011</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">1010</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0100</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">1011</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0010</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">0000</pre></td>
+</tr>
+<tr><td width="18%" valign="MIDDLE" bgcolor="#ffffff">
+<p align="CENTER">Hex</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">4</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">3</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ffff00">
+<p align="CENTER">A</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">4</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">B</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ffff00">
+<p align="CENTER">2</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">0</p></td>
+</tr>
+</tbody></table>
+
+<p>So, in hexadecimal, this number is 0x43A4B200.</p>
+<p><a name="special"></a></p>
+<h2>Special Numbers</h2>
+<p>Sometimes the computer feels a need to put forth a result of a 
+calculation that reflects that some error was made. Perhaps the 
+magnitude of the result of a calculation was larger or smaller than this
+ format would seem to be able to support. Perhaps you attempted to 
+divide by zero. Perhaps you're trying to represent zero! How does one 
+deal with these issues? The answer is that there are special cases of 
+floating point numbers, specifically when the exponent field is all 1 
+bits (255) or all 0 bits (0).</p>
+<h3>Denormalized Numbers</h3>
+<p>If you have an exponent field that's all zero bits, this is what's 
+called a denormalized number. With the exponent field equal to zero, you
+ would think that the real exponent would be -127, so this number would 
+take the form of 1.MANTISSA * 2<sup>-127</sup> as described above, but it does not. Instead, it is 0.MANTISSA * 2<sup>-126</sup>.
+ Notice that the exponent is no longer the value of the exponent field 
+minus 127. It is simply -126. Also notice that we no longer include an 
+implied one bit for the mantissa.</p>
+<p>As an example, take the floating point number represented as 0x80280000. First, convert this to binary.</p>
+<table width="522" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="9" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="18%" valign="MIDDLE" bgcolor="#ffffff">
+<p align="CENTER">Hex</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">8</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ffff00">
+<p align="CENTER">2</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">8</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ffff00">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#00ffff">
+<p align="CENTER">0</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<p align="CENTER">0</p></td>
+</tr>
+<tr><td width="18%" valign="MIDDLE" bgcolor="#c0c0c0">
+<p align="CENTER">Binary</p></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">1000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0010</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">1000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="CENTER">0000</pre></td>
+<td width="10%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre align="CENTER">0000</pre></td>
+</tr>
+</tbody></table>
+
+<p>We put this into the three 1 bit, 8 bits, and 23 bits packets that we're now familiar with.</p>
+<table width="426" cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="3" valign="MIDDLE">&nbsp;</td>
+</tr>
+<tr><td width="3%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre align="RIGHT">1</pre></td>
+<td width="25%" valign="MIDDLE" bgcolor="#ff00ff">
+<pre>00000000</pre></td>
+<td width="72%" valign="MIDDLE" bgcolor="#c0c0c0">
+<pre>01010000000000000000000</pre></td>
+</tr>
+</tbody></table>
+
+<p>Our sign bit is 1, so this number is negative. Our exponent is 0, so 
+we know this is a denormalized number. Our mantissa is 0101, which 
+reflects a real mantissa of 0.0101; remember we don't include what was 
+previously an implied one bit for an exponent of zero. So, this means we
+ have a number -0.0101<sub>2</sub>*2<sup>-126</sup> = -0.3125<sub>10</sub>*2<sup>-126</sup> = -1.25<sub>10</sub>*2<sup>-128</sup>.</p>
+<h3>Zero</h3>
+<p>You can think of zero as simply another denormalized number. Zero is 
+represented by an exponent of zero and a mantissa of zero. From our 
+understanding of denormalized numbers, this translates into 0*2<sup>-126</sup>
+ = 0. This sign bit can be either positive (0) or negative (1), leading 
+to either a positive or negative zero. This doesn't make very much sense
+ mathematically, but it is allowed.</p>
+<h3>Infinity</h3>
+<p>Just as the case of all zero bits in the exponent field is a special 
+case, so is the case of all one bits. If the exponent field is all ones,
+ and the mantissa is all zeros, then this number is an infinity. There 
+can be either positive or negative infinities depending on the sign bit.
+ For example, 0x7F800000 is positive infinity, and 0xFF800000 is 
+negative infinity.</p>
+<h3>NaN (Not a Number)</h3>
+<p>These special quantities have an exponent field of 255 (all one bits)
+ like infinity, but differ from the representation of infinity in that 
+the mantissa contains some one bits. It doesn't matter where they are or
+ how many of them there are, just so long as there are some. The sign 
+bit appears to have no bearing on this. Examples of this special 
+quantity include 0x7FFFFFFF, 0xFF81ABD0, 0x7FAA12F9, and soforth.</p>
+<h3>Summary of Special Cases</h3>
+<p>A summary of special cases is shown in the below table. It is more or
+ less a copy of the table found on page 301 of the second edition of 
+Computer Organization and Design, the Hardware Software Interface" by 
+Patterson and Hennessy, the textbook for Computer Science 104 in the 
+Spring 2000 semester. Even though only single precision was covered in 
+the above text, I include double precision for the sake of completeness.</p>
+<p align="CENTER"></p><center><table cellspacing="1" cellpadding="7" border="">
+<tbody><tr><td colspan="2" valign="MIDDLE" bgcolor="#008080">
+<p><b><font color="#ffffff">Single Precision</font></b></p></td>
+<td colspan="2" valign="MIDDLE" bgcolor="#800080">
+<b><font color="#ffffff"></font></b><font color="#ffffff"></font><p><font color="#ffffff"><b>Double Precision</b></font></p></td>
+<td rowspan="2" valign="MIDDLE" bgcolor="#808000">
+<b><font color="#ffffff"></font></b><font color="#ffffff"></font><p><font color="#ffffff"><b>Object Represented</b></font></p></td>
+</tr>
+<tr><td valign="MIDDLE" bgcolor="#c0c0c0">
+<p>Exponent</p></td>
+<td valign="MIDDLE" bgcolor="#c0c0c0">
+<p>Mantissa</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>Exponent</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>Mantissa</p></td>
+</tr>
+<tr><td valign="MIDDLE" bgcolor="#ffffff">
+<p>0</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>0</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>0</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>0</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>zero</p></td>
+</tr>
+<tr><td valign="MIDDLE" bgcolor="#ffffff">
+<p>0</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>nonzero</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>0</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>nonzero</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>&amp;plusmn; denormalized number</p></td>
+</tr>
+<tr><td valign="MIDDLE" bgcolor="#ffffff">
+<p>1-254</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>anything</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>1-2046</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>anything</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>&amp;plusmn; normalized number</p></td>
+</tr>
+<tr><td valign="MIDDLE" bgcolor="#ffffff">
+<p>255</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>0</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>2047</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>0</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>&amp;plusmn; infinity</p></td>
+</tr>
+<tr><td valign="MIDDLE" bgcolor="#ffffff">
+<p>255</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>nonzero</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>2047</p></td>
+<td valign="MIDDLE" bgcolor="#ff00ff">
+<p>nonzero</p></td>
+<td valign="MIDDLE" bgcolor="#ffffff">
+<p>NaN (Not a Number)</p></td>
+</tr>
+</tbody></table>
+</center><p></p>
+
+<h3>When, Where, and Where Not</h3>
+<p>When you have operations like 0/0 or subtracting infinity from 
+infinity (or some other ambiguous computation), you will get NaN. When 
+you divide a number by zero, you will get an infinity.</p>
+<p>However, accounting for these special operations takes some extra 
+effort on the part of the designer, and can lead to slower operations as
+ more transistors are utilized in chip design. For this reason sometimes
+ CPUs do not account for these operations, and instead generate an 
+exception. For example, when I try to divide by zero or do operations 
+with infinity, my computer generates exceptions and refuses to complete 
+the operation (my computer has a G3 processor, or MPC750).</p>
+<p><a name="software"></a></p>
+<h2>Helper Software</h2>
+<p>If you're interested in investigating further, I include two programs
+ for which I provide the C code that you can run to gain a greater 
+understanding of how floating point works, and also to check your work 
+on various assignments.</p>
+<h3>Hex 2 Float</h3>
+<pre>#include &lt;stdio.h&gt;int main(){  float theFloat;  while (1) {    scanf("%x", (int *) &amp;theFloat);    printf("0x%08X, %f\n", *(int *)&amp;theFloat, theFloat);  }  return 0;}</pre>
+<p>This program accepts as input a hexadecimal quantity and reads it as 
+raw data into the variable "theFloat." The program then outputs the 
+hexadecimal representation of the data in "theFloat" (repeating the 
+input), and prints alongside it the floating point quantity that it 
+represents.</p>
+<p>I show here a sample run of the program. Notice the special case floating point quantities (0, infinity, and not a number).</p>
+<p>For the denormalized but nonzero numbers, this program will display 
+zero even though the number is not really zero. If you want to get 
+around this problem, replace the %f in the formatting string of the 
+printf function with %e, which will deplay the number to great precision
+ with scientific notation. I did not have it as %e because I find 
+scientific notation extremely annoying.</p>
+<pre>C0B400000xC0B40000, -5.62500043A4B2000x43A4B200, 329.390625000000000x00000000, 0.000000800000000x80000000, -0.0000007f8000000x7F800000, infff8000000xFF800000, -inf7fffffff0x7FFFFFFF, NaNffffffff0xFFFFFFFF, NaN7f81A0230x7F81A023, NaN</pre>
+<h3>Float 2 Hex</h3>
+<pre>#include &lt;stdio.h&gt;int main(){  float theFloat;  while (1) {    scanf("%f", &amp;theFloat);    printf("0x%08X, %f\n", *(int *)&amp;theFloat, theFloat);  }  return 0;}</pre>
+<p>This is a slight modification of the "Hex 2 Float" program. The 
+exception is it reads in a floating point number. Just like and outputs 
+the hexadecimal form plus the floating point number. Again I include a 
+sample run of this program, confirming the results of the example 
+problems I covered earlier in this text, along with some other simple 
+cases. Notice the hexadecimal representation of 0.2.</p>
+<pre>-5.6250xC0B40000, -5.625000329.3906250x43A4B200, 329.39062500x00000000, 0.000000-00x80000000, -0.000000.20x3E4CCCCD, 0.200000.50x3F000000, 0.50000010x3F800000, 1.000000</pre>
+<p>And that's the end of that chapter.</p>
+<p></p><hr width="12%" align="LEFT"><p></p>
+<p></p><div class="BOTTOM">Thomas Finley 2000</div><p></p>
+
+</body></html>
