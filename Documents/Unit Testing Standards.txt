@@ -1,0 +1,2 @@
+Unit testing will use CUnit
+This can be found here: http://cunit.sourceforge.net/index.html

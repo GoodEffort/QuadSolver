@@ -2,11 +2,11 @@
 #include <math.h>
 
 int main() {
-	double a,b,c,determinant;
+	double a, b, c, determinant;
 	double root1, root2;
 	
-	printf("Introduce coefficients a b and c:\n");
-	scanf("%1lf %1lf %1lf", &a, &b, &c);
+	printf("Enter a, b, and c:\n");
+	scanf("%lf %lf %lf", &a, &b, &c);
 	
 	determinant = (b * b) - (4 * a * c);
 	
