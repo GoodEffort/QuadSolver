@@ -2,11 +2,11 @@
 #include<math.h>
 
 int main() {
-	double a, b, c;
-	double d, root1, root2;
+	float a, b, c;
+	float d, root1, root2;
 	
 	printf("Enter a, b, and c: \n");
-	scanf("%lf %lf %lf", &a, &b, &c);
+	scanf("%f %f %f", &a, &b, &c);
 	
 	d = b * b - 4 * a * c;
 	
@@ -20,7 +20,7 @@ int main() {
 		
 		root1 = -b / (2 * a);
 		
-		printf("Root is %.16lf\n", root1);
+		printf("Root is %.16f\n", root1);
 		
 		return 0;
 	}
@@ -29,7 +29,7 @@ int main() {
 		
 		root1 = (-b + sqrt(d)) / (2 * a);
 		root2 = (-b - sqrt(d)) / (2 * a);
-		printf("Roots of quad eq are %.16lf and %.16lf\n", root1, root2);
+		printf("Roots of quad eq are %.16f and %.16f\n", root1, root2);
 	}
 	
 	return 0;

@@ -16,13 +16,13 @@ int main() {
 	}
 	
 	if (b > 0) {
-		root1 = (-b - sqrt(determinant)) / (2 * a);
-		root2 = (c / (a * root1));
+		root2 = (-b - sqrt(determinant)) / (2 * a);
+		root1 = (c / (a * root2));
 		printf("The solutions are %.16f and %.16f\n", root1, root2);
 	} 
 	else if (b < 0) {
-		root1 = (-b + sqrt(determinant)) / (2 * a);
-		root2 = (c / (a * root1));
+		root2 = (-b + sqrt(determinant)) / (2 * a);
+		root1 = (c / (a * root2));
 		printf("The solutions are %.16f and %.16f\n", root1, root2);
 	}
 }
