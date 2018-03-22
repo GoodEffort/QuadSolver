@@ -1,0 +1,4 @@
+before running this test you must install CUnit
+sudo apt-get install libcunit1 libcunit1-doc libcunit1-dev
+
+then include the cunit headers
