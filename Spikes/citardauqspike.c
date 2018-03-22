@@ -2,11 +2,11 @@
 #include <math.h>
 
 int main() {
-	float a, b, c, determinant;
-	float root1, root2;
+	double a, b, c, determinant;
+	double root1, root2;
 	
 	printf("Enter a, b, and c:\n");
-	scanf("%f %f %f", &a, &b, &c);
+	scanf("%lf %lf %lf", &a, &b, &c);
 	
 	determinant = (b * b) - (4 * a * c);
 	
