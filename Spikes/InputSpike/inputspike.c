@@ -1,13 +1,13 @@
 #include <stdio.h>
 
 int main () {
-	char a[10], b[10], c[10];
+	float a, b, c;
 	printf("Input value of A:\n");
-	scanf("%s", a);
+	scanf("%f", &a);
 	printf("Input value of B:\n");
-	scanf("%s", b);
+	scanf("%f", &b);
 	printf("Input value of C:\n");
-	scanf("%s", c);
+	scanf("%f", &c);
 	
-	printf("%s %s %s\n", a, b, c);
+	printf("%f %f %f\n", a, b, c);
 }
