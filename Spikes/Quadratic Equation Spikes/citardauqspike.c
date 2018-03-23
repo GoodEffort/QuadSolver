@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
+
 int main() {
 	float a, b, c, determinant;
 	float root1, root2;
@@ -10,7 +11,7 @@ int main() {
 	
 	determinant = (b * b) - (4 * a * c);
 	
-	if (0 > determinant) {
+	if (determinant < 0) {
 		printf("The equation has no real solution\n");
 		return 0;
 	}
