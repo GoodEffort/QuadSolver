@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<string.h>
+#include <stdbool.h>
 
 #include "../headers/output.h"
 
@@ -14,6 +15,12 @@ void printOutput(float root1, float root2, bool realAnswer) {
 		}
 	}
 	else {
-		printf("There is not a real solution to the problem");
+		printf("There is not a real solution to the problem\n");
 	}
+}
+
+int main() {
+	printOutput(10, 2e3, true);
+	printOutput(10, 10, true);
+	printOutput(0, 0, false);
 }
