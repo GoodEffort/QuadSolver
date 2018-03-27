@@ -15,17 +15,17 @@ inputObject* getInputAndValidate() {
 	printf("Input value of C:\n");
 	if (scanf("%f", &c) != 1)
 		fprintf(stderr, "Input not a float!\n");
-		
+
 	inputObject *io;
 	io = malloc(sizeof(inputObject));
 	io->a = a;
 	io->b = b;
 	io->c = c;
-	
+
 	return io;
 }
 
-int main() {
-	inputObject* io = getInputAndValidate();
-	printf("%f %f %f\n", io->a, io->b, io->c);
-}
+// int main() {
+// 	inputObject* io = getInputAndValidate();
+// 	printf("%f %f %f\n", io->a, io->b, io->c);
+// }
