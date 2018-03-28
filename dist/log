@@ -1,4 +1,4 @@
-2018-03-28 12:17:31 TRACE Main.c:24: Starting logging in main
-2018-03-28 12:17:31 TRACE ../IO/IO.c:73: getInput and Validate method called 1 times
-2018-03-28 12:17:34 TRACE ../Solver/solver.c:16: qsolve method called 1 times
-2018-03-28 12:17:34 TRACE ../Output/output.c:11: printOutputCallCount method called 1 times
+2018-03-28 12:29:03 TRACE Main.c:24: Starting logging in main
+2018-03-28 12:29:03 TRACE ../IO/IO.c:73: getInput and Validate method called 1 times
+2018-03-28 12:29:05 TRACE ../Solver/solver.c:16: qsolve method called 1 times
+2018-03-28 12:29:05 TRACE ../Output/output.c:11: printOutputCallCount method called 1 times

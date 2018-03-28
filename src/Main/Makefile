@@ -9,4 +9,4 @@ test:
 	cd ../IO ; make unitTest
 
 clean:
-	rm ./QuadSolver
+	rm -f ../../dist/QuadSolver ../../dist/log ../../dist/solverUnitTests ../../dist/validateUnitTests
