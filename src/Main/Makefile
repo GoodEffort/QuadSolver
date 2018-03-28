@@ -1,5 +1,5 @@
 build:
-	gcc -Wall -pedantic -o QuadSolver Main.c -lm -lcunit
+	gcc -Wall -pedantic -o ../../dist/QuadSolver Main.c -lm -lcunit
 
 run:
 	./QuadSolver
