@@ -3,16 +3,20 @@
 #include<stdbool.h>
 #include<math.h>
 #include<stdlib.h>
+#include "../log.c/src/log.h"
 
 #include "../headers/solver.h"
 
 // I used the code here to verify that I did this correctly
 // meaning much if it is similar to code here:
 // https://stackoverflow.com/questions/49096957/citardauq-formula-not-working-precisely
+int qsolveCount = 0;
 
 solverObject *qsolve(float a, float b, float c) {
 	//float root1, root2, determinant;
 	//bool isreal;
+	
+	log_trace("qsolve method called %d times", ++qsolveCount);
 	float root1 = 0;
 	float root2 = 0;
 	bool isreal = false;

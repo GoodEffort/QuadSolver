@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 	
-	fp = fopen("log", "ab");
+	fp = fopen("log", "wb");
 	log_set_fp(fp);
 	
 	log_trace("Starting logging in main");
