@@ -17,11 +17,6 @@
 int main(int argc, char const *argv[]) {
 	FILE *fp;
 	log_set_quiet(1);
-	if (argc > 0) {
-		if (strcmp(argv[0], "-v")) {
-			log_set_quiet(0);
-		}
-	}
 	
 	fp = fopen("log", "wb");
 	log_set_fp(fp);

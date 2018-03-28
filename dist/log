@@ -1,4 +1,3 @@
-2018-03-27 23:16:52 TRACE Main.c:29: Starting logging in main
-2018-03-27 23:16:56 TRACE ../Solver/solver.c:19: qsolve method, 0
-2018-03-27 23:17:38 TRACE Main.c:29: Starting logging in main
-2018-03-27 23:17:40 TRACE ../Solver/solver.c:19: qsolve method called 1 times
+2018-03-27 23:44:40 TRACE Main.c:24: Starting logging in main
+2018-03-27 23:44:43 TRACE ../Solver/solver.c:19: qsolve method called 1 times
+2018-03-27 23:44:43 TRACE ../Output/output.c:11: printOutputCallCount method called 1 times

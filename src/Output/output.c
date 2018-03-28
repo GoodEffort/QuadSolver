@@ -3,8 +3,12 @@
 #include <stdbool.h>
 
 #include "../headers/output.h"
+#include "../log.c/src/log.h"
+
+int printOutputCallCount = 0;
 
 void printOutput(float root1, float root2, bool realAnswer) {
+	log_trace("printOutputCallCount method called %d times", ++printOutputCallCount);
 	if (realAnswer) {
 		if (root1 != root2) {
 			printf("The value of the first root is %f\n", root1);
