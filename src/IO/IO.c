@@ -9,7 +9,6 @@ int getInputCalledCount = 0;
 int validateCalledCount = 0;
 
 char *getInput() {
-	log_trace("getInput method called %d times", ++getInputCalledCount);
 	
 	char buffer[512];
 	
@@ -71,6 +70,7 @@ inputObject *validate(char * valInput) {
 }
 
 inputObject* getInputAndValidate() {
+	log_trace("getInput and Validate method called %d times", ++getInputCalledCount);
 	char * input = getInput();
 	printf("%s", input);
 	return validate(input);

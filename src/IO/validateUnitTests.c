@@ -24,6 +24,27 @@ void test_validate(void) {
 	CU_ASSERT_EQUAL(expected_c, io->c);
 }
 
+void test_validate1(void) {
+	char input[] = "1 2 1";
+	float expected_a = 1;
+	float expected_b = 2;
+	float expected_c = 1;
+	inputObject *io = validate(input);
+	CU_ASSERT_EQUAL(expected_a, io->a);
+	CU_ASSERT_EQUAL(expected_b, io->b);
+	CU_ASSERT_EQUAL(expected_c, io->c);
+}
+void test_validate2(void) {
+	char input[] = "0.00002 22.456 12";
+	float expected_a = 0.00002;
+	float expected_b = 22.456;
+	float expected_c = 12;
+	inputObject *io = validate(input);
+	CU_ASSERT_EQUAL(expected_a, io->a);
+	CU_ASSERT_EQUAL(expected_b, io->b);
+	CU_ASSERT_EQUAL(expected_c, io->c);
+}
+
 int main(void) {
 	CU_pSuite pSuite = NULL;
 
@@ -40,6 +61,8 @@ int main(void) {
 
 	/* add the tests to the suite */
 	if ( (NULL == CU_add_test(pSuite, "test_validate", test_validate))
+	|| (NULL == CU_add_test(pSuite, "test_validate1", test_validate1))
+	|| (NULL == CU_add_test(pSuite, "test_validate2", test_validate2))
 	) {
 		CU_cleanup_registry();
 		return CU_get_error();
