@@ -1,0 +1,4 @@
+Our Unit Tests only cover what is worth testing, The most obvious thing to test would be the qsolver itself, if we put in certain numbers we should expect certain outcomes.
+The second thing that would benefit from unit testing is our input module, whatever input there is we should test for a reasonable output.
+
+Thus our unit tests only need to cover these two modules, and even then are probably only useful on the qsolver.
