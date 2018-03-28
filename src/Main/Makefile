@@ -6,6 +6,7 @@ run:
 
 test:
 	cd ../Solver ; make unitTest
+	cd ../IO ; make unitTest
 
 clean:
 	rm ./QuadSolver

@@ -5,25 +5,33 @@
 #include "../headers/IO.h"
 #include "../log.c/src/log.h"
 
-inputObject* getInputAndValidate() {
+int getInputCalledCount = 0;
+int validateCalledCount = 0;
 
+char *getInput() {
+	log_trace("getInput method called %d times", ++getInputCalledCount);
+	
 	char buffer[512];
-	char *token;
-	char *err;
-	int i = 0;
-	float value;
-	inputObject *io;
-	io = malloc(sizeof(inputObject));
-
-
-
+	
 	printf("Input values for a b c: ");
 	char *input = fgets(buffer ,512, stdin);
 	if (NULL == input){
 		log_error("Could not get input");
 		exit(-1);
 	}
+	return input;
+}
 
+inputObject *validate(char *input) {
+	log_trace("validate method called %d times", ++validateCalledCount);
+	
+	char *token;
+	char *err;
+	int i = 0;
+	float value;
+	inputObject *io;
+	io = malloc(sizeof(inputObject));
+	
 	while ((token = strsep(&input, ", \"")) != NULL) {
 		switch (i) {
 			case 0:
@@ -59,22 +67,10 @@ inputObject* getInputAndValidate() {
 		exit(-1);
 	}
 
-
-	// printf("Input value of A:\n");
-	// if (scanf("%f", &a) != 1)
-	// 	fprintf(stderr, "Input not a float!\n");
-	// printf("Input value of B:\n");
-	// if (scanf("%f", &b) != 1)
-	// 	fprintf(stderr, "Input not a float!\n");
-	// printf("Input value of C:\n");
-	// if (scanf("%f", &c) != 1)
-	// 	fprintf(stderr, "Input not a float!\n");
-
-
 	return io;
 }
 
-// int main() {
-// 	inputObject* io = getInputAndValidate();
-// 	printf("%f %f %f\n", io->a, io->b, io->c);
-// }
+inputObject* getInputAndValidate() {
+	char *input = getInput();
+	return validate(input);
+}

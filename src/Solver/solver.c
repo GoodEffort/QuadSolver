@@ -13,10 +13,8 @@
 int qsolveCount = 0;
 
 solverObject *qsolve(float a, float b, float c) {
-	//float root1, root2, determinant;
-	//bool isreal;
-	
 	log_trace("qsolve method called %d times", ++qsolveCount);
+	
 	float root1 = 0;
 	float root2 = 0;
 	bool isreal = false;
