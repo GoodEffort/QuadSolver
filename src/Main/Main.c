@@ -18,17 +18,7 @@ int main(int argc, char const *argv[]) {
 
   solverObject* so = qsolve(io->a, io->b, io->c);
 
-  if(so->root2 == -3.400000) {
-    printf("%f is equal\n", so->root2);
-  } else {
-    double percent = fabs((so->root2 - (-3.4))/ (-3.4));
-    if (percent < 0.0001) {
-      printf("%f is equal\n", percent);
-    } else {
-      printf("%f is not equal\n", percent);
-    }
-
-  }
+  
 
   printOutput(so->root1,so->root2,so->isReal);
   return 0;
