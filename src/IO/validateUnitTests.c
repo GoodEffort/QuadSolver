@@ -14,7 +14,7 @@ int clean_suite(void) {
 	return 0;
 }
 void test_validate(void) {
-	char *input = "1 444.555 3e4";
+	char input[] = "1 444.555 3e4";
 	float expected_a = 1;
 	float expected_b = 444.555;
 	float expected_c = 3e4;
