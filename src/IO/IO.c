@@ -9,6 +9,7 @@ inputObject* getInputAndValidate() {
 
 	char buffer[512];
 	char *token;
+	char *err;
 	int i = 0;
 	float value;
 	inputObject *io;
@@ -18,20 +19,35 @@ inputObject* getInputAndValidate() {
 
 	printf("Input values for a b c: ");
 	char *input = fgets(buffer ,512, stdin);
-	if (NULL == input){ exit(-1);}
+	if (NULL == input){
+		log_error("Could not get input");
+		exit(-1);
+	}
 
 	while ((token = strsep(&input, ", \"")) != NULL) {
 		switch (i) {
 			case 0:
-			value = atof(token);
+			value = strtod(token, &err);
+			if (err[0] != '\0') {
+				log_error("Input A (%s) is not a valid number", err);
+				exit(-1);
+			}
 			io->a = value;
 			break;
 			case 1:
-			value = atof(token);
+			value = strtod(token, &err);
+			if (err[0] != '\0') {
+				log_error("Input B (%s) is not a valid number", err);
+				exit(-1);
+			}
 			io->b = value;
 			break;
 			case 2:
-			value = atof(token);
+			value = strtod(token, &err);
+			if (err[0] != '\0' && err[0] != '\n') {
+				log_error("Input C (%s) is not a valid number", err);
+				exit(-1);
+			}
 			io->c = value;
 			break;
 		}
@@ -39,8 +55,8 @@ inputObject* getInputAndValidate() {
 	}
 	if (i != 3) {
 		printf("Three arguments were not found.\n");
-		log_trace("There are not 3 arguments\nNumber of arguments: %d",i);
-		exit(0);
+		log_error("There are not 3 arguments\nNumber of arguments: %d",i);
+		exit(-1);
 	}
 
 
