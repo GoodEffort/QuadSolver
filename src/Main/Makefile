@@ -4,9 +4,8 @@ build:
 run:
 	./QuadSolver
 
-test: solverUnitTests.c
-	gcc -Wall -pedantic -o solverUnitTests solverUnitTests.c -lm -lcunit
-	./solverUnitTests
+test:
+	cd ../Solver ; make unitTest
 	
 clean:
 	rm ./QuadSolver
