@@ -14,7 +14,7 @@ char *getInput() {
 	char buffer[512];
 	
 	printf("Input values for a b c: ");
-	char *input = fgets(buffer ,512, stdin);
+	char* input = fgets(buffer ,512, stdin);
 	if (NULL == input){
 		log_error("Could not get input");
 		exit(-1);
@@ -22,8 +22,8 @@ char *getInput() {
 	return input;
 }
 
-inputObject *validate(char *input) {
-	log_trace("validate method called %d times", ++validateCalledCount);
+inputObject *validate(char * valInput) {
+	//log_trace("validate method called %d times input: %s", ++validateCalledCount, valInput);
 	
 	char *token;
 	char *err;
@@ -32,7 +32,7 @@ inputObject *validate(char *input) {
 	inputObject *io;
 	io = malloc(sizeof(inputObject));
 	
-	while ((token = strsep(&input, ", \"")) != NULL) {
+	while ((token = strsep(&valInput, ", \"")) != NULL) {
 		switch (i) {
 			case 0:
 			value = strtod(token, &err);
@@ -71,6 +71,7 @@ inputObject *validate(char *input) {
 }
 
 inputObject* getInputAndValidate() {
-	char *input = getInput();
+	char * input = getInput();
+	printf("%s", input);
 	return validate(input);
 }
