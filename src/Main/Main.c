@@ -7,6 +7,8 @@
 #include "../Solver/solver.c"
 #include "../headers/output.h"
 #include "../Output/output.c"
+#include "../log.c/src/log.h"
+#include "../log.c/src/log.c"
 //#include "../Solver/solverUnitTests.c"
 
 
