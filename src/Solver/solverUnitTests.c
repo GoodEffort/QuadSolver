@@ -1,5 +1,8 @@
 #include<stdlib.h>
 
+#include "../log.c/src/log.h"
+#include "../log.c/src/log.c"
+
 #include "CUnit/Basic.h"
 #include "solver.c"
 
